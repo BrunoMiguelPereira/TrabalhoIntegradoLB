@@ -129,7 +129,7 @@ def retira_seq_features(record, lista_ind, lista_chaves):
 d_essenciais = retira_seq_features(record,ind_essgenes, genes_essenciais)
 print(len(d_essenciais))#quantidade de genes essenciais para confirmar
 
-#2ºcorrer para cada sequência um blast e verificar s enão é homólogo, isto é, não foi realizado nenhum alinhamento
+#2ºcorrer para cada sequência um blast e verificar se não é homólogo, isto é, não foi realizado nenhum alinhamento
 
 #função que leva como argumento um dicionario em que as chaves sao id's dos genes e os values são as sequencias desses genes
 #devolve um dicionario com as mesmas chaves e o resultado do blast, sendo que contem apenas as sequencias para as quais não se encontrou alinhamentos após blast
