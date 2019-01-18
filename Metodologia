@@ -144,8 +144,24 @@ def dic_genesnaohomologos(dicionario):
             
 nao_homologos = dic_genesnaohomologos(d_essenciais)
  
+######################
+#Seleção dos 3 genes
+######################
 
+#A primeira seleção (gene essencial com droga conhecida), foi feita através de uma pesquisa na base de dados DrugBank submetendo uma query
+#com Pseudomonas aeroginosa PAO1, sendo que se selecionou uma droga que tinha como alvo uma proteína deste organismo. Para ver qual a correspondência
+#ao gene, foi inserida na base de dados KEGG essa proteína. Após obter o gene, confirmou-se que era essencial e não homólogo, através da verificação 
+#desse gene no dicionário <nao_homologos>. Resultado: PA5045.
 
+#Os dois outros genes foram escolhidos aleatoriamente do dicionário. Selecionávamos um e íamos verificar na base de dados DrugBank se exitia 
+#ou não uma droga. Decidimos escolher um com uma droga, mas que a droga para a proteína derivada do gene encontra-se em fase experimental, isto é,
+#ainda não está comprovado que de facto possa combater o organismo (Resultado: PA4425). A outra é um gene em que a proteína derivada não tem
+#uma droga na base de dados DrugBank, confirmado pela não entrada "DrugBank" na base de dados da Pseudomonas (www.pseudomonas.com) para esse gene
+#(Resultado: PA3145).
+
+#Para cada proteína derivada do gene foram retiradas da internet informações relevantes, tais como, vias metabólicas onde se inserem, estrutura, motivos,
+#domínios, função, ..., disponível no nosso website. Bases de dados utilizadas: KEGG, www.pseudomonas.com, UniProt, NCBI CDD, Pfam, PDB, LocTree3, NetPhosBac,
+#Phobius e DrugBank.
 
 
  
