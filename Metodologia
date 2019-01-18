@@ -5,6 +5,8 @@
 from Bio import SeqIO
 from Bio import Entrez
 from Bio.Blast import NCBIWWW,NCBIXML
+from Bio import AlignIO
+from Bio import Phylo
 
 ################################################
 #1ºobjetivo, retirar o genoma completo do NCBI
@@ -162,6 +164,57 @@ nao_homologos = dic_genesnaohomologos(d_essenciais)
 #Para cada proteína derivada do gene foram retiradas da internet informações relevantes, tais como, vias metabólicas onde se inserem, estrutura, motivos,
 #domínios, função, ..., disponível no nosso website. Bases de dados utilizadas: KEGG, www.pseudomonas.com, UniProt, NCBI CDD, Pfam, PDB, LocTree3, NetPhosBac,
 #Phobius e DrugBank.
+
+######################################
+#MultipleAlign e Árvore Filogenética
+######################################
+
+#função para escrever num ficheiro (para alinhamento múltiplo) as sequências resultantes de um BLAST
+#tivemos que colocar só as sequências que alinharam porque se colocássemos a sequência completa que deu origem à que alinhou, dava erro a fazer
+#o input do ficheiro com as sequências no clustalx
+#::param gene,dicionario::gene que deve ser avaliado e dicionário que contém o gene e a respetiva sequência
+
+def seqs_am(gene,dicionario):
+  info = []
+  seqs = []
+  result = NCBIWWW.qblast("blastn","nr",str(dicionario[gene]),entrez_query = "NOT Pseudomonas[Organism]") #não queremos que apareça homologia com o organismo que estamos a estudar
+  blast_result = NCBIXML.read(result)
+  for alignment in blast_result.alignments:
+    title = alignment.title.split("|")[3:5]
+    f_title = title[0]+title[1]
+    info.append(f_title)
+    for hsp in alignment.hsps:
+      seqs.append(hsp.sbjct)
+   description = ">"+gene+"\n"
+   seq = str(dicionario[gene])
+   name_file = "sequences_"+gene+".fasta"
+   file = open(name_file,"w")
+   file.write(description)
+   file.write(seq+"\n")
+   for i in range(len(info)):
+    file.write(">"+indo[i]+"(part of the sequence aligned)"+"\n")
+    file.write(seqs[i]+"\n")
+   file.close()
+   return
+   
+#Chamar a função para cada gene que temos
+seqs_am("PA4425",d_essenciais)
+seqs_am("PA3145",d_essenciais)
+seqs_am("PA....",d_essenciais)
+
+##Na linha de comandos chamar o "clustalx", executando este comando
+##Fazer o input do ficheiro gerado pela função anterior, para cada gene
+##Guardar o alinhamento em formato cluster e guardar a árvore em formato nexus
+
+#Alinhamento
+alignment = AlignIO.read(<nome_ficheiro_alinhamento_multiplo>,"clustal")
+print(alignment)
+
+#Árvores
+tree = Phylo.read(<nome_ficheiro_arvore>,"nexus")
+Phylo.draw_ascii(tree)
+   
+    
 
 
  
