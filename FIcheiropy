@@ -1,0 +1,151 @@
+#Script Desenvolvida durante a realização do trabalho da unidade curricular de Laboratórios de Bioinformática
+#em conjunto com Biologia de Sistemas e Algoritmos para Análise de Sequências Biológicas
+
+#Imports
+from Bio import SeqIO
+from Bio import Entrez
+from Bio.Blast import NCBIWWW,NCBIXML
+
+################################################
+#1ºobjetivo, retirar o genoma completo do NCBI
+################################################
+
+Entrez.email = "pereirinha_bp@hotmail.com" #indicar sempre o e-mail para aceder ao NCBI
+
+procura = Entrez.esearch(db="nucleotide", term="Pseudomonas aeruginosa[Organism] AND complete genome[title] AND PAO1[strain]
+print(procura) #possível observar que se encontra num formato para ser lido por funções de input/output ("TextIOWrapper")
+
+procura_lida = Entrez.read(procura)
+print(procura_lida) #dicionário com o resultado da nossa procura no Entrez
+
+lista_id = procura_lida["IdList"] # chave do dicionário que nos indica os id's encontrados tendo em conta a query
+print(lista_id) 
+
+info_id = [] #colocar numa lista a informação referente a cada um dos id, informação obtida é necessário ser lida
+for i in lista_id:
+  indo_id.append(Entrez.efetch(db="nucleotide",rettype="gbwithparts", retmode="text",id=i))
+
+#ler ambos os ficheiros
+handle0 = SeqIO.read(info_id[0],"genbank")
+handle1 = SeqIO.read(info_id[1],"genbank") #ao executar este comando é obtido um erro porque a informação não é completamente lida o que nos levou a crer que este id não seria o correto
+                                           #por via de dúvidas consultamos os dados do primeiro
+#id do genoma e descrição
+print(handle0.id)
+print(handle0.description)
+#confirmar o número de features do nosso genoma para garantir que temos a informação toda
+print(len(handle0.features)) #Output:11908
+
+#primeiro objetivo concluído
+record = handle0
+
+#########################
+#Dados acerca do genoma
+#########################
+
+#id genoma
+print(record.id)
+
+#descrição do genoma
+print(record.description)
+
+#Anotações
+print(record.annotations) #dicionário onde é possível retirar a taxonomia, tipo de molécula, o organismo de origem, as referências, ...
+
+#Obter duas listas, uma com os índices de genes e outra com os dos CDS's
+genes = []
+CDS = []
+for i in range(len(record.features)):
+  if record.features[i].type == "CDS":
+    CDS.append(i)
+  elif record.features[i].type == "gene":
+    genes.append(i)
+
+#Número de genes e CDS's
+print(len(genes))
+print(len(CDS))
+
+#############################################
+#Determinar os genes essenciais do organismo
+#############################################
+#Obter o ficheiro OGEE com dados referentes aos genes essenciais ou não do nosso organismo, guardar o ficheiro, que após o download é preciso converter em ficheiro txt separado por tabulações
+
+#função que recebe um ficheiro(da base de dados OGEE, convertido de excel para txt separado por tabulações) e retorna uma lista com os genes essenciais
+def essenciality(ficheiro):
+    try:
+        file = open(ficheiro,"r")
+        lista_genes_essenciais = []
+        file.readline()
+        for line in file:
+            linha = line.rstrip().split("\t")
+            tuplo = linha[0]
+            palavras = tuplo.split(",")
+            if palavras[-1]=="Essential":
+                lista_genes_essenciais.append(palavras[0])
+        file.close()
+        return lista_genes_essenciais
+    except FileNotFoundError:
+        print("Ficheiro não encontrado")
+    except:
+        print("Erro:")
+        raise
+ genes_essenciais = essenciality(<nome_ficheiro>) #no nosso caso era:"Pseudomonas-aeruginosa-PAO1_consolidated.txt"
+ #número de genes essenciais
+ print(len(genes_essenciais))
+ 
+#função que retira os genes essenciais do conjunto de genes das features, retorna lista dos indices dos genes essenciais nas features
+#::param lista_indices, lista_genes, record:: uma lista com os indices de todos os genes nas features, uma lista com os genes essenciais da OGEE e o record que contempla as features
+def essential_genes_feat(lista_indices, lista_locus, record):
+    l_essfeat = []
+    for i in lista_indices:
+        dict = record.features[i].qualifiers
+        locus = dict['locus_tag'][0]
+        if locus in lista_locus:
+            l_essfeat.append(i)
+    return l_essfeat
+
+ind_essgenes = essential_genes_feat(genes,genes_essenciais,record)
+
+print(len(ind_essgenes)) #confirmar o tamanho --> Output: 336 genes essenciais
+
+#############################
+#BLAST dos genes essenciais
+#############################
+#Nota: decidimos só fazer BLAST dos genes essenciais pois a totalidade dos genes era incomportável em termos de cronológicos pois o tempo que demorava a fazer BLAST de 5000 e tal genes era demasiado (75 genes por 6horas)
+
+#1ºcriar um dicionário em que as chaves são o nome dos genes e os valores a sequência correspondente
+
+#função que retira do genoma completo as sequencias de nucleotidos de features e retorna um dicionário em que a chave é o elemento da categoria da feature e o value é a sequencia de DNA
+#::param record, lista_ind, lista_chaves:: record é a variável que armazena o objeto Seq.Record e a lista é uma lista de indices com as features de interesse, e a lista_chaves é uma lista com as chaves do futuro dicionário
+def retira_seq_features(record, lista_ind, lista_chaves):
+    d = {}
+    for i in range(len(lista_ind)):
+        feat = record.features[lista_ind[i]]
+        sequencia = feat.extract(record.seq)
+        categoria = lista_chaves[i]
+        d[categoria] = sequencia
+    return d
+    
+   
+d_essenciais = retira_seq_features(record,ind_essgenes, genes_essenciais)
+print(len(d_essenciais))#quantidade de genes essenciais para confirmar
+
+#2ºcorrer para cada sequência um blast e verificar s enão é homólogo, isto é, não foi realizado nenhum alinhamento
+
+#função que leva como argumento um dicionario em que as chaves sao id's dos genes e os values são as sequencias desses genes
+#devolve um dicionario com as mesmas chaves e o resultado do blast, sendo que contem apenas as sequencias para as quais não se encontrou alinhamentos após blast
+def dic_genesnaohomologos(dicionario):
+    d = {}
+    for key in dicionario:
+        result = NCBIWWW.qblast("blastn","human_genomic",str(dicionario[key]))
+        blast_result = NCBIXML.read(result)
+        if blast_result.alignments == []:
+            d[key] = blast_result
+    return d
+            
+nao_homologos = dic_genesnaohomologos(d_essenciais)
+ 
+
+
+
+
+ 
