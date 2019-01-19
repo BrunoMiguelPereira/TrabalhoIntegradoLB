@@ -145,6 +145,12 @@ def dic_genesnaohomologos(dicionario):
     return d
             
 nao_homologos = dic_genesnaohomologos(d_essenciais)
+
+#Escrever num ficheiro os genes não homólogos
+file = open("genes_essenciais_nao_homologos.txt","w")
+for key in dessenc_n_homologos:
+    file.write(key+"\n")
+file.close()
  
 ######################
 #Seleção dos 3 genes
