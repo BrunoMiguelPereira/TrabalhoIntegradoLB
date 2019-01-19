@@ -207,8 +207,39 @@ seqs_am("PA4418",d_essenciais)
 ##Guardar o alinhamento em formato cluster e guardar a árvore em formato nexus
 
 #Alinhamento é feito para cada ficheiro cluster
+
 alignment = AlignIO.read(<nome_ficheiro_alinhamento_multiplo>,"clustal")
-print(alignment)
+
+print(alignment) #com o print, retirar o número de colunas e de linhas do alinhamento
+ncols = <numero_colunas>
+nlinhas = <numero_linahs>
+
+#Tentar encontrar um domínio/superfamília comum às sequências
+
+#Função consensus estudada nas aulas de AASB, com a alteração para que seja feito num alinhamento múltiplo
+# o consensus retornado pela função será o nosso hipotético motivo
+
+def consensus (alig,nlinhas,ncols):
+    cons = ""
+    for i in range(ncols):
+        cont = {}
+        for k in range(nseqs):
+            c = alig[k,i]
+            if c in cont: cont[c] = cont[c] + 1
+            else: cont[c] = 1
+        maximum = 0
+        cmax = None
+        for ke in cont.keys():
+            if ke != "-" and cont[ke] > maximum:
+                maximum = cont[ke]
+                cmax = ke
+        cons = cons + cmax
+    return cons
+
+motif = consensus(alignment,nlinhas,ncols)
+print(motif)
+#Após obter o motivo basta copiar a sequência e colocar como query no NCBI CDD e verificar se ocorre um match
+ 
 
 #Árvores é feito para cada ficheiro nexus
 tree = Phylo.read(<nome_ficheiro_arvore>,"nexus")
