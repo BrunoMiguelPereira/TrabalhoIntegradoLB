@@ -153,7 +153,7 @@ nao_homologos = dic_genesnaohomologos(d_essenciais)
 #A primeira seleção (gene essencial com droga conhecida), foi feita através de uma pesquisa na base de dados DrugBank submetendo uma query
 #com Pseudomonas aeroginosa PAO1, sendo que se selecionou uma droga que tinha como alvo uma proteína deste organismo. Para ver qual a correspondência
 #ao gene, foi inserida na base de dados KEGG essa proteína. Após obter o gene, confirmou-se que era essencial e não homólogo, através da verificação 
-#desse gene no dicionário <nao_homologos>. Resultado: PA5045.
+#desse gene no dicionário <nao_homologos>. Resultado: PA4418.
 
 #Os dois outros genes foram escolhidos aleatoriamente do dicionário. Selecionávamos um e íamos verificar na base de dados DrugBank se exitia 
 #ou não uma droga. Decidimos escolher um com uma droga, mas que a droga para a proteína derivada do gene encontra-se em fase experimental, isto é,
@@ -200,17 +200,17 @@ def seqs_am(gene,dicionario):
 #Chamar a função para cada gene que temos
 seqs_am("PA4425",d_essenciais)
 seqs_am("PA3145",d_essenciais)
-seqs_am("PA....",d_essenciais)
+seqs_am("PA4418",d_essenciais)
 
 ##Na linha de comandos chamar o "clustalx", executando este comando
 ##Fazer o input do ficheiro gerado pela função anterior, para cada gene
 ##Guardar o alinhamento em formato cluster e guardar a árvore em formato nexus
 
-#Alinhamento
+#Alinhamento é feito para cada ficheiro cluster
 alignment = AlignIO.read(<nome_ficheiro_alinhamento_multiplo>,"clustal")
 print(alignment)
 
-#Árvores
+#Árvores é feito para cada ficheiro nexus
 tree = Phylo.read(<nome_ficheiro_arvore>,"nexus")
 Phylo.draw_ascii(tree)
    
