@@ -239,11 +239,13 @@ def consensus (alig,nlinhas,ncols):
 motif = consensus(alignment,nlinhas,ncols)
 print(motif)
 #Após obter o motivo basta copiar a sequência e colocar como query no NCBI CDD e verificar se ocorre um match
+#ter em atenção que este é um método simples para tentar descobrir um motivo comum a todas as sequências
+#estudos mais aprofundados podem e devem ser tidos em conta
  
 
 #Árvores é feito para cada ficheiro nexus
 tree = Phylo.read(<nome_ficheiro_arvore>,"nexus")
-Phylo.draw_ascii(tree)
+Phylo.draw_ascii(tree) 
    
     
 
