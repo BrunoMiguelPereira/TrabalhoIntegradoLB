@@ -25,7 +25,7 @@ print(lista_id)
 
 info_id = [] #colocar numa lista a informação referente a cada um dos id, informação obtida é necessário ser lida
 for i in lista_id:
-  indo_id.append(Entrez.efetch(db="nucleotide",rettype="gbwithparts", retmode="text",id=i))
+  indo_id.append(Entrez.efetch(db="nucleotide",rettype="gbwithparts", retmode="text",id=i) #agradecimento ao Tiago Oliveira do nosso mestrado por nos ter ajudado com o rettype para que se pudesse obter o genoma com as features todas
 
 #ler ambos os ficheiros
 handle0 = SeqIO.read(info_id[0],"genbank")
